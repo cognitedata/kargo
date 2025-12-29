@@ -5,6 +5,7 @@
  * REST API for Kargo
  * OpenAPI spec version: v1alpha1
  */
+import type { PromotionWindowReference } from './promotionWindowReference';
 import type { PromotionPolicySelector } from './promotionPolicySelector';
 
 export interface PromotionPolicy {
@@ -16,6 +17,10 @@ subscribe to Warehouses instead of other, upstream Stages. This allows
 users to define Stages that are automatically updated as soon as new
 artifacts are detected. */
   autoPromotionEnabled?: boolean;
+  /** PromotionWindows defines time windows during which automatic promotions
+are allowed to occur. If not specified, automatic promotions can occur at
+any time. */
+  promotionWindows?: PromotionWindowReference[];
   /** Stage is the name of the Stage to which this policy applies.
 
 Deprecated: Use StageSelector instead.

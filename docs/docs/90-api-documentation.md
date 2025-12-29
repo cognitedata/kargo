@@ -2214,6 +2214,7 @@ RawFormat specifies the format for raw resource representation.
 | stage | string |  Stage is the name of the Stage to which this policy applies.  Deprecated: Use StageSelector instead.   |
 | stageSelector | [PromotionPolicySelector](#github-com-akuity-kargo-api-v1alpha1-PromotionPolicySelector) |  StageSelector is a selector that matches the Stage resource to which this policy applies. |
 | autoPromotionEnabled | bool |  AutoPromotionEnabled indicates whether new Freight can automatically be promoted into the Stage referenced by the Stage field. Note: There are may be other conditions also required for an auto-promotion to occur. This field defaults to false, but is commonly set to true for Stages that subscribe to Warehouses instead of other, upstream Stages. This allows users to define Stages that are automatically updated as soon as new artifacts are detected. |
+| promotionWindows | [PromotionWindowReference](#github-com-akuity-kargo-api-v1alpha1-PromotionWindowReference) |  PromotionWindows defines time windows during which automatic promotions are allowed to occur. If not specified, automatic promotions can occur at any time. |
 
 
 ### PromotionPolicySelector {#github-com-akuity-kargo-api-v1alpha1-PromotionPolicySelector}
@@ -2328,6 +2329,40 @@ RawFormat specifies the format for raw resource representation.
 | ----- | ---- | ----------- |
 | vars | [ExpressionVariable](#github-com-akuity-kargo-api-v1alpha1-ExpressionVariable) |  Vars is a list of variables that can be referenced by expressions in promotion steps. |
 | steps | [PromotionStep](#github-com-akuity-kargo-api-v1alpha1-PromotionStep) |  Steps specifies the directives to be executed as part of a Promotion. The order in which the directives are executed is the order in which they are listed in this field.      |
+
+
+### PromotionWindow {#github-com-akuity-kargo-api-v1alpha1-PromotionWindow}
+ 
+| Field | Type | Description |
+| ----- | ---- | ----------- |
+| metadata | k8s.io.apimachinery.pkg.apis.meta.v1.ObjectMeta |   |
+| spec | [PromotionWindowSpec](#github-com-akuity-kargo-api-v1alpha1-PromotionWindowSpec) |  Spec describes the composition of an AutoPromotionWindow, including the recurring time window and time zone.   |
+
+
+### PromotionWindowList {#github-com-akuity-kargo-api-v1alpha1-PromotionWindowList}
+ PromotionWindowList contains a list of PromotionWindows.
+| Field | Type | Description |
+| ----- | ---- | ----------- |
+| metadata | k8s.io.apimachinery.pkg.apis.meta.v1.ListMeta |   |
+| items | [PromotionWindow](#github-com-akuity-kargo-api-v1alpha1-PromotionWindow) |   |
+
+
+### PromotionWindowReference {#github-com-akuity-kargo-api-v1alpha1-PromotionWindowReference}
+ 
+| Field | Type | Description |
+| ----- | ---- | ----------- |
+| name | string |  Name is the name of the time window.   |
+| kind | string |  Kind is the kind of the time window   |
+
+
+### PromotionWindowSpec {#github-com-akuity-kargo-api-v1alpha1-PromotionWindowSpec}
+ 
+| Field | Type | Description |
+| ----- | ---- | ----------- |
+| kind | string |  Kind is either "deny" or "allow", indicating whether the time window represents a period during which promotions are denied or allowed.   |
+| schedule | string |  Schedule describes a recurring time window. Example: "0 0 * * 1-5" means every weekday at midnight.   |
+| duration | string |  Duration is the length of time that the window lasts after the start time defined by the Schedule.   |
+| timeZone | string |  TimeZone is the IANA time zone name that applies to the time window. If not specified, UTC is assumed. |
 
 
 ### QuayWebhookReceiverConfig {#github-com-akuity-kargo-api-v1alpha1-QuayWebhookReceiverConfig}
