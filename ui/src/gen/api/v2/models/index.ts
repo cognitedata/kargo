@@ -151,6 +151,7 @@ export * from './promotionTaskReference';
 export * from './promotionTaskSpec';
 export * from './promotionTemplate';
 export * from './promotionTemplateSpec';
+export * from './promotionWindowReference';
 export * from './publicConfig';
 export * from './quayWebhookReceiverConfig';
 export * from './queryFreightsRestParams';

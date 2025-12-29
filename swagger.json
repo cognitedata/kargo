@@ -8027,6 +8027,22 @@
         }
       }
     },
+    "PromotionWindowReference": {
+      "type": "object",
+      "properties": {
+        "kind": {
+          "description": "Kind is the kind of the time window\n\n+kubebuilder:validation:Enum=PromotionWindow;ClusterPromotionWindow;",
+          "type": "string"
+        },
+        "name": {
+          "description": "Name is the name of the time window.\n\n+kubebuilder:validation:Required",
+          "type": "string"
+        }
+      },
+      "required": [
+        "name"
+      ]
+    },
     "QuayWebhookReceiverConfig": {
       "type": "object",
       "properties": {

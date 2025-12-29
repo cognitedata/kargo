@@ -149,7 +149,7 @@ type PromotionPolicy struct {
 	Stage string `json:"stage,omitempty" protobuf:"bytes,1,opt,name=stage"`
 	// StageSelector is a selector that matches the Stage resource to which
 	// this policy applies.
-	StageSelector *PromotionPolicySelector `json:"stageSelector,omitempty" protobuf:"bytes,3,opt,name=stageSelector"`
+	StageSelector *PromotionPolicySelector `json:"stageSelector,omitempty" protobuf:"bytes,2,opt,name=stageSelector"`
 	// AutoPromotionEnabled indicates whether new Freight can automatically be
 	// promoted into the Stage referenced by the Stage field. Note: There are may
 	// be other conditions also required for an auto-promotion to occur. This
