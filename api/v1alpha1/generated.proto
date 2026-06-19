@@ -181,28 +181,6 @@ message ArtifactoryWebhookReceiverConfig {
   optional string virtualRepoName = 2;
 }
 
-// AutoPromotionHold is a value in the AutoPromotionHolds map. It records the
-// details of the Promotion that established the hold.
-message AutoPromotionHold {
-  // FreightName is the name of the Freight selected when the hold was created.
-  optional string freightName = 1;
-
-  // Origin describes the FreightOrigin pinned by this hold. It matches the
-  // enclosing map key.
-  optional FreightOrigin origin = 2;
-
-  // PromotionName is the name of the Promotion that established this hold.
-  // Stored here as a paper trail that survives Promotion garbage collection.
-  optional string promotionName = 3;
-
-  // Actor identifies the user who triggered the hold.
-  optional string actor = 4;
-
-  // CreatedAt is the creation timestamp of the Promotion that established this
-  // hold.
-  optional .k8s.io.apimachinery.pkg.apis.meta.v1.Time createdAt = 5;
-}
-
 // AutoPromotionOptions specifies options pertaining to auto-promotion.
 message AutoPromotionOptions {
   // SelectionPolicy specifies the rules for identifying new Freight that is
@@ -219,36 +197,6 @@ message AutoPromotionOptions {
   //   from this Stage is eligible for auto-promotion. This policy may only
   //   be applied when the Stage has exactly one upstream Stage.
   optional string selectionPolicy = 1;
-}
-
-// AutoRollbackConfig describes the conditions under which a Stage should
-// automatically roll back to the last known-good (verified) Freight.
-message AutoRollbackConfig {
-  // OnPromotion is the list of terminal Promotion phases that should trigger
-  // an automated rollback. Only Failed and Errored are accepted. Note that
-  // unsuccessful promotions (as opposed to unsuccessful verifications) may not
-  // necessarily indicate a problem with the Freight, since promotions might fail
-  // due to transient issues with the deployment itself (network, credential
-  // expirations, etc...). Defaults to [].
-  //
-  // +optional
-  // +listType=set
-  // +kubebuilder:validation:MaxItems=2
-  // +kubebuilder:validation:XValidation:message="onPromotion[0] must be Failed or Errored",rule="self.size() == 0 || self[0] == 'Failed' || self[0] == 'Errored'"
-  // +kubebuilder:validation:XValidation:message="onPromotion[1] must be Failed or Errored",rule="self.size() <= 1 || self[1] == 'Failed' || self[1] == 'Errored'"
-  repeated string onPromotion = 1;
-
-  // OnVerification is the list of terminal verification phases that should
-  // trigger an automated rollback. Only Failed and Error are accepted (note:
-  // "Error", not "Errored" as in onPromotion). When absent or empty,
-  // defaults to [Failed].
-  //
-  // +optional
-  // +listType=set
-  // +kubebuilder:validation:MaxItems=2
-  // +kubebuilder:validation:XValidation:message="onVerification[0] must be Failed or Error",rule="self.size() == 0 || self[0] == 'Failed' || self[0] == 'Error'"
-  // +kubebuilder:validation:XValidation:message="onVerification[1] must be Failed or Error",rule="self.size() <= 1 || self[1] == 'Failed' || self[1] == 'Error'"
-  repeated string onVerification = 2;
 }
 
 // AzureWebhookReceiverConfig describes a webhook receiver that is compatible
@@ -403,20 +351,6 @@ message ClusterConfigSpec {
   // via the Helm chart.
   // +optional
   optional GitClientConfig gitClient = 2;
-
-  // FreightLinks defines deep links shown when viewing any Freight resource
-  // across all projects in the cluster. Project-level FreightLinks defined
-  // in ProjectConfig are shown in addition to these.
-  //
-  // +optional
-  repeated DeepLink freightLinks = 3;
-
-  // StageLinks defines deep links shown when viewing any Stage resource
-  // across all projects in the cluster. Project-level StageLinks defined in
-  // ProjectConfig are shown in addition to these.
-  //
-  // +optional
-  repeated DeepLink stageLinks = 4;
 }
 
 // ClusterConfigStatus describes the current status of a ClusterConfig.
@@ -467,34 +401,6 @@ message CurrentStage {
   // Freight. This can be used to calculate how long the Freight has been in use
   // by the Stage.
   optional .k8s.io.apimachinery.pkg.apis.meta.v1.Time since = 1;
-}
-
-// DeepLink defines a configurable external link that is rendered in the UI
-// when viewing a Freight or Stage resource. The URL is an expression evaluated
-// against the resource. The optional If field is an expression condition;
-// when set, the link is only shown when the expression evaluates to true.
-message DeepLink {
-  // Title is the display label for the link.
-  //
-  // +kubebuilder:validation:MinLength=1
-  optional string title = 1;
-
-  // URL is an expression that resolves to the link's href.
-  //
-  // +kubebuilder:validation:MinLength=1
-  optional string url = 2;
-
-  // Description is an optional human-readable summary shown alongside the
-  // link.
-  //
-  // +optional
-  optional string description = 3;
-
-  // If is an optional expression condition. When set, the link is only shown
-  // when the expression evaluates to true.
-  //
-  // +optional
-  optional string if = 4;
 }
 
 // DiscoveredArtifacts holds the artifacts discovered by the Warehouse for its
@@ -588,25 +494,6 @@ message DiscoveredImageReference {
   optional .k8s.io.apimachinery.pkg.apis.meta.v1.Time createdAt = 4;
 }
 
-// DiscoveredRef pairs a Git ref name with the ID of the object it resolves to.
-message DiscoveredRef {
-  // Name is the short name of the ref (e.g. a tag name such as "v1.2.3"),
-  // without its "refs/tags/" or "refs/heads/" prefix.
-  //
-  // +kubebuilder:validation:MinLength=1
-  optional string name = 1;
-
-  // ID is the identifier of the object the ref points to, typically a SHA-1
-  // hash. For an annotated tag this is the tag object's ID, not the commit it
-  // dereferences to, because the value is obtained via git ls-remote --refs.
-  // This is immaterial to its sole use -- change detection -- since the value
-  // moves whenever the ref is re-pointed and is only ever compared against
-  // other values obtained the same way.
-  //
-  // +kubebuilder:validation:MinLength=1
-  optional string id = 2;
-}
-
 // DiscoveryResult represents the result of an artifact discovery operation for
 // some subscription.
 message DiscoveryResult {
@@ -674,12 +561,6 @@ message Freight {
   // present, the defaulting webhook will choose an available alias and assign
   // it to both the field and label.
   optional string alias = 7;
-
-  // DiscoveredAt is the time at which this Freight was discovered/created.
-  // A defaulting webhook initializes this to the creation time of the Freight.
-  //
-  // +optional
-  optional .k8s.io.apimachinery.pkg.apis.meta.v1.Time discoveredAt = 11;
 
   // Origin describes a kind of Freight in terms of its origin.
   //
@@ -997,29 +878,6 @@ message GitCommit {
   optional string committer = 8;
 }
 
-// GitDiscoveryRefs records the raw remote ref state relevant to a
-// GitSubscription's commit selection strategy at the time of discovery. Exactly
-// one of its fields is populated, according to whether the strategy selects from
-// a branch or from tags.
-message GitDiscoveryRefs {
-  // BranchHead is the unfiltered commit ID at the tip of the subscribed branch.
-  // It is populated for branch-based selection strategies (NewestFromBranch).
-  // Because it records the branch tip before any path filtering, an unchanged
-  // value guarantees the path-filtered selection cannot have changed either.
-  //
-  // +optional
-  optional string branchHead = 1;
-
-  // Tags is the set of tags that satisfied the GitSubscription's name-based
-  // filters (semver and/or regex), paired with the commit IDs they reference,
-  // sorted by tag name for a stable comparison. It is populated for tag-based
-  // selection strategies (NewestTag, SemVer, Lexical). Path filtering is
-  // applied later, during selection, and does not affect this set.
-  //
-  // +optional
-  repeated DiscoveredRef tags = 2;
-}
-
 // GitDiscoveryResult represents the result of a Git discovery operation for a
 // GitSubscription.
 message GitDiscoveryResult {
@@ -1038,19 +896,6 @@ message GitDiscoveryResult {
   //
   // +optional
   repeated DiscoveredCommit commits = 2;
-
-  // ObservedRefs records the raw remote ref state observed at the most recent
-  // successful discovery, after name-based filtering but before path filtering
-  // or commit selection. The Warehouse uses it to short-circuit discovery: at
-  // the start of a reconcile, a single git ls-remote call yields the current
-  // ref state, and if it matches this field, nothing relevant has moved and the
-  // previously selected Commits remain valid -- so an expensive clone and
-  // history walk can be skipped entirely. This field is optional; when absent
-  // (e.g. on a Warehouse that predates this feature), discovery falls through to
-  // a full clone and repopulates it.
-  //
-  // +optional
-  optional GitDiscoveryRefs observedRefs = 3;
 }
 
 // GitHubWebhookReceiverConfig describes a webhook receiver that is compatible
@@ -1103,71 +948,65 @@ message GitSubscription {
   // NewestTag, or SemVer.
   repeated string allowTagsRegexes = 2;
 
-  // Blobless enables blobless cloning (--filter=blob:none) for this subscription. When true,
-  // git clones will defer blob downloads until checkout, significantly reducing clone time
-  // and disk usage for large repositories. The server must support partial clones; if it does
-  // not, the clone will fail.
-  optional bool blobless = 3;
-
   // Branch references a particular branch of the repository. Only has effect when
   // CommitSelectionStrategy is NewestFromBranch or unspecified. When left unspecified, the
   // subscription is implicitly to the repository's default branch. Must be a valid branch
   // name.
-  optional string branch = 4;
+  optional string branch = 3;
 
   // CommitSelectionStrategy specifies the rules for how to identify the newest commit of
   // interest in the repository specified by the RepoURL field.
-  optional string commitSelectionStrategy = 5;
+  optional string commitSelectionStrategy = 4;
 
   // DiscoveryLimit is an optional limit on the number of commits that can be discovered for
   // this subscription. The upper limit is 100.
-  optional int64 discoveryLimit = 6;
+  optional int64 discoveryLimit = 5;
 
   // ExcludePaths is a list of selectors that designate paths in the repository that should
   // NOT trigger the production of new Freight when changes are detected therein.
-  repeated string excludePaths = 7;
+  repeated string excludePaths = 6;
 
   // ExpressionFilter is an expression that can optionally be used to limit the commits or
   // tags that are considered in determining the newest commit of interest based on their
   // metadata.
-  optional string expressionFilter = 8;
+  optional string expressionFilter = 7;
 
   // IgnoreTags is a list of tags that must be ignored when determining the newest commit of
   // interest. Deprecated: Use ignoreTagsRegexes instead.
-  repeated string ignoreTags = 9;
+  repeated string ignoreTags = 8;
 
   // IgnoreTagsRegexes is a list of regular expressions that can optionally be used to exclude
   // tags from consideration. Only has effect when CommitSelectionStrategy is Lexical,
   // NewestTag, or SemVer.
-  repeated string ignoreTagsRegexes = 10;
+  repeated string ignoreTagsRegexes = 9;
 
   // IncludePaths is a list of selectors that designate paths in the repository that should
   // trigger the production of new Freight when changes are detected therein.
-  repeated string includePaths = 11;
+  repeated string includePaths = 10;
 
   // InsecureSkipTLSVerify specifies whether certificate verification errors should be ignored
   // when connecting to the repository. This should be enabled only with great caution.
-  optional bool insecureSkipTLSVerify = 12;
+  optional bool insecureSkipTLSVerify = 11;
 
   // URL is the repository's URL. This is a required field. Deprecated: Support for SSH URLs
   // (ssh:// and SCP-style git@host:path) is deprecated as of v1.10.0 and will be removed in
   // v1.13.0. Use HTTPS URLs instead.
-  optional string repoURL = 13;
+  optional string repoURL = 12;
 
   // SemverConstraint specifies constraints on what new tagged commits are considered in
   // determining the newest commit of interest. Only has effect when CommitSelectionStrategy
   // is SemVer.
-  optional string semverConstraint = 14;
+  optional string semverConstraint = 13;
 
   // An optional date (RFC 3339) that limits commit discovery to commits at or after this
   // date. When specified, discovery stops upon reaching a commit older than this date. When
   // left unspecified, there is no cutoff.
-  optional .k8s.io.apimachinery.pkg.apis.meta.v1.Time since = 15;
+  optional .k8s.io.apimachinery.pkg.apis.meta.v1.Time since = 14;
 
   // StrictSemvers specifies whether only "strict" semver tags should be considered. A
   // "strict" semver tag contains ALL of major, minor, and patch version components. Only has
   // effect when CommitSelectionStrategy is SemVer.
-  optional bool strictSemvers = 16;
+  optional bool strictSemvers = 15;
 }
 
 // GiteaWebhookReceiverConfig describes a webhook receiver that is compatible
@@ -1421,20 +1260,6 @@ message ProjectConfigSpec {
   // WebhookReceivers describes Project-specific webhook receivers used for
   // processing events from various external platforms
   repeated WebhookReceiverConfig webhookReceivers = 2;
-
-  // FreightLinks defines deep links shown when viewing Freight resources
-  // within this project. These are shown in addition to any cluster-level
-  // FreightLinks defined in ClusterConfig.
-  //
-  // +optional
-  repeated DeepLink freightLinks = 3;
-
-  // StageLinks defines deep links shown when viewing Stage resources within
-  // this project. These are shown in addition to any cluster-level
-  // StageLinks defined in ClusterConfig.
-  //
-  // +optional
-  repeated DeepLink stageLinks = 4;
 }
 
 // ProjectConfigStatus describes the current status of a ProjectConfig.
@@ -1533,7 +1358,7 @@ message PromotionPolicy {
 
   // StageSelector is a selector that matches the Stage resource to which
   // this policy applies.
-  optional PromotionPolicySelector stageSelector = 2;
+  optional PromotionPolicySelector stageSelector = 3;
 
   // AutoPromotionEnabled indicates whether new Freight can automatically be
   // promoted into the Stage referenced by the Stage field. Note: There are may
@@ -1543,13 +1368,6 @@ message PromotionPolicy {
   // users to define Stages that are automatically updated as soon as new
   // artifacts are detected.
   optional bool autoPromotionEnabled = 2;
-
-  // AutoRollback describes the conditions under which this Stage should
-  // automatically roll back to the last known-good (verified) Freight. When
-  // nil, auto-rollback is disabled.
-  //
-  // Kargo Enterprise only: This field is ignored in Kargo OSS.
-  optional AutoRollbackConfig autoRollback = 4;
 }
 
 // PromotionPolicySelector is a selector that matches the resource to which
@@ -1607,8 +1425,6 @@ message PromotionReference {
 
 // PromotionSpec describes the desired transition of a specific Stage into a
 // specific Freight.
-//
-// +kubebuilder:validation:XValidation:message="exactly one of freight or origin must be set",rule="has(self.freight) != has(self.origin)"
 message PromotionSpec {
   // Stage specifies the name of the Stage to which this Promotion
   // applies. The Stage referenced by this field MUST be in the same
@@ -1621,23 +1437,15 @@ message PromotionSpec {
   // +akuity:test-kubebuilder-pattern=KubernetesName
   optional string stage = 1;
 
-  // Freight specifies the piece of Freight to be promoted into the Stage.
-  // Exactly one of Freight or Origin must be set.
+  // Freight specifies the piece of Freight to be promoted into the Stage
+  // referenced by the Stage field.
   //
-  // +kubebuilder:validation:Optional
+  // +kubebuilder:validation:Required
   // +kubebuilder:validation:MinLength=1
   // +kubebuilder:validation:MaxLength=253
   // +kubebuilder:validation:Pattern=`^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$`
   // +akuity:test-kubebuilder-pattern=KubernetesName
   optional string freight = 2;
-
-  // Origin, when set, identifies the FreightOrigin whose auto-promotion
-  // candidate should be promoted. The mutating webhook resolves this to the
-  // candidate Freight for that origin and fills Freight before the Promotion
-  // is persisted. Exactly one of Freight or Origin must be set.
-  //
-  // +kubebuilder:validation:Optional
-  optional FreightOrigin origin = 14;
 
   // Vars is a list of variables that can be referenced by expressions in
   // promotion steps.
@@ -1862,6 +1670,9 @@ message PromotionTemplateSpec {
   repeated PromotionStep steps = 1;
 }
 
+// PromotionWindows defines time windows during which automatic promotions
+// are allowed to occur. If not specified, automatic promotions can occur at
+// any time.
 message PromotionWindow {
   optional .k8s.io.apimachinery.pkg.apis.meta.v1.ObjectMeta metadata = 1;
 
@@ -1877,18 +1688,6 @@ message PromotionWindowList {
   optional .k8s.io.apimachinery.pkg.apis.meta.v1.ListMeta metadata = 1;
 
   repeated PromotionWindow items = 2;
-}
-
-message PromotionWindowReference {
-  // Name is the name of the time window.
-  //
-  // +kubebuilder:validation:Required
-  optional string name = 1;
-
-  // Kind is the kind of the time window
-  //
-  // +kubebuilder:validation:Enum=PromotionWindow;ClusterPromotionWindow;
-  optional string kind = 2;
 }
 
 message PromotionWindowSpec {
@@ -1913,6 +1712,11 @@ message PromotionWindowSpec {
   // TimeZone is the IANA time zone name that applies to the time window.
   // If not specified, UTC is assumed.
   optional string timeZone = 4;
+
+  // LabelSelector to target either Projects or Stages
+  // I am using a LabelSelector instead of a typed field to isolate all the changes to limit the conflict with upstream
+  // +optional
+  optional .k8s.io.apimachinery.pkg.apis.meta.v1.LabelSelector labelSelector = 5;
 }
 
 // QuayWebhookReceiverConfig describes a webhook receiver that is compatible
@@ -2076,21 +1880,6 @@ message StageStatus {
   // This is useful for storing additional information about the Stage
   // that can be shared across promotions, verifications, or other processes.
   map<string, .k8s.io.apiextensions_apiserver.pkg.apis.apiextensions.v1.JSON> metadata = 15;
-
-  // AutoPromotionHolds records active auto-promotion holds for this Stage. A
-  // hold is established when a Promotion selects Freight other than the
-  // auto-promotion candidate for that origin, pausing auto-promotion for that
-  // origin until explicitly released. Auto-promotions themselves never
-  // establish holds. Keys are string representations of FreightOrigins (e.g.
-  // "Warehouse/my-warehouse"); values describe the Promotion that established
-  // the hold.
-  map<string, AutoPromotionHold> autoPromotionHolds = 16;
-
-  // EffectiveAutoPromotionHolds is the set of auto-promotion holds in effect
-  // right now. It is recomputed every reconciliation from AutoPromotionHolds
-  // plus the newest in-flight Promotions, and unlike AutoPromotionHolds is not
-  // durable. Clients should read this map to reflect current hold state.
-  map<string, AutoPromotionHold> effectiveAutoPromotionHolds = 17;
 }
 
 // StepExecutionMetadata tracks metadata pertaining to the execution of

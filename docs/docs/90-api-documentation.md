@@ -1621,30 +1621,11 @@ RawFormat specifies the format for raw resource representation.
 | virtualRepoName | string |  VirtualRepoName is the name of an Artifactory virtual repository.  When unspecified, the Artifactory webhook receiver depends on the value of the webhook payload's `data.repo_key` field when inferring the URL of the repository from which the webhook originated, which will always be an Artifactory "local repository." In cases where a Warehouse subscribes to such a repository indirectly via a "virtual repository," there will be a discrepancy between the inferred (local) repository URL and the URL actually used by the subscription, which can prevent the receiver from identifying such a Warehouse as one in need of refreshing. When specified, the value of the VirtualRepoName field supersedes the value of the webhook payload's `data.repo_key` field to compensate for that discrepancy.  In practice, when using virtual repositories, a separate Artifactory webhook receiver should be configured for each, but one such receiver can handle inbound webhooks from any number of local repositories that are aggregated by that virtual repository. For example, if a virtual repository `proj-virtual` aggregates container images from all of the `proj` Artifactory project's local image repositories, with a single webhook configured to post to a single receiver configured for the `proj-virtual` virtual repository, an image pushed to `example.frog.io/proj-&lt;local-repo-name&gt;/&lt;path&gt;/image`, will cause that receiver to refresh all Warehouses subscribed to `example.frog.io/proj-virtual/&lt;path&gt;/image`.  +optional |
 
 
-### AutoPromotionHold {#github-com-akuity-kargo-api-v1alpha1-AutoPromotionHold}
- AutoPromotionHold is a value in the AutoPromotionHolds map. It records the details of the Promotion that established the hold.
-| Field | Type | Description |
-| ----- | ---- | ----------- |
-| freightName | string |  FreightName is the name of the Freight selected when the hold was created. |
-| origin | [FreightOrigin](#github-com-akuity-kargo-api-v1alpha1-FreightOrigin) |  Origin describes the FreightOrigin pinned by this hold. It matches the enclosing map key. |
-| promotionName | string |  PromotionName is the name of the Promotion that established this hold. Stored here as a paper trail that survives Promotion garbage collection. |
-| actor | string |  Actor identifies the user who triggered the hold. |
-| createdAt | k8s.io.apimachinery.pkg.apis.meta.v1.Time |  CreatedAt is the creation timestamp of the Promotion that established this hold. |
-
-
 ### AutoPromotionOptions {#github-com-akuity-kargo-api-v1alpha1-AutoPromotionOptions}
  AutoPromotionOptions specifies options pertaining to auto-promotion.
 | Field | Type | Description |
 | ----- | ---- | ----------- |
 | selectionPolicy | string |  SelectionPolicy specifies the rules for identifying new Freight that is eligible for auto-promotion to this Stage. This field is optional. When left unspecified, the field is implicitly treated as if its value were "NewestFreight".  Accepted Values:  - "NewestFreight": The newest Freight that is available to the Stage is   eligible for auto-promotion.  - "MatchUpstream": Only the Freight currently used immediately upstream   from this Stage is eligible for auto-promotion. This policy may only   be applied when the Stage has exactly one upstream Stage. |
-
-
-### AutoRollbackConfig {#github-com-akuity-kargo-api-v1alpha1-AutoRollbackConfig}
- AutoRollbackConfig describes the conditions under which a Stage should automatically roll back to the last known-good (verified) Freight.
-| Field | Type | Description |
-| ----- | ---- | ----------- |
-| onPromotion | string |  OnPromotion is the list of terminal Promotion phases that should trigger an automated rollback. Only Failed and Errored are accepted. Note that unsuccessful promotions (as opposed to unsuccessful verifications) may not necessarily indicate a problem with the Freight, since promotions might fail due to transient issues with the deployment itself (network, credential expirations, etc...). Defaults to [].  +optional +listType=set    |
-| onVerification | string |  OnVerification is the list of terminal verification phases that should trigger an automated rollback. Only Failed and Error are accepted (note: "Error", not "Errored" as in onPromotion). When absent or empty, defaults to [Failed].  +optional +listType=set    |
 
 
 ### AzureWebhookReceiverConfig {#github-com-akuity-kargo-api-v1alpha1-AzureWebhookReceiverConfig}
@@ -1714,8 +1695,6 @@ RawFormat specifies the format for raw resource representation.
 | ----- | ---- | ----------- |
 | webhookReceivers | [WebhookReceiverConfig](#github-com-akuity-kargo-api-v1alpha1-WebhookReceiverConfig) |  WebhookReceivers describes cluster-scoped webhook receivers used for processing events from various external platforms |
 | gitClient | [GitClientConfig](#github-com-akuity-kargo-api-v1alpha1-GitClientConfig) |  GitClient describes cluster-level configuration for Kargo's Git client, including committer identity and an optional signing key. If set, these values take precedence over any configuration provided at install time via the Helm chart. +optional |
-| freightLinks | [DeepLink](#github-com-akuity-kargo-api-v1alpha1-DeepLink) |  FreightLinks defines deep links shown when viewing any Freight resource across all projects in the cluster. Project-level FreightLinks defined in ProjectConfig are shown in addition to these.  +optional |
-| stageLinks | [DeepLink](#github-com-akuity-kargo-api-v1alpha1-DeepLink) |  StageLinks defines deep links shown when viewing any Stage resource across all projects in the cluster. Project-level StageLinks defined in ProjectConfig are shown in addition to these.  +optional |
 
 
 ### ClusterConfigStatus {#github-com-akuity-kargo-api-v1alpha1-ClusterConfigStatus}
@@ -1749,16 +1728,6 @@ RawFormat specifies the format for raw resource representation.
 | Field | Type | Description |
 | ----- | ---- | ----------- |
 | since | k8s.io.apimachinery.pkg.apis.meta.v1.Time |  Since is the time at which the Stage most recently started using the Freight. This can be used to calculate how long the Freight has been in use by the Stage. |
-
-
-### DeepLink {#github-com-akuity-kargo-api-v1alpha1-DeepLink}
- DeepLink defines a configurable external link that is rendered in the UI when viewing a Freight or Stage resource. The URL is an expression evaluated against the resource. The optional If field is an expression condition; when set, the link is only shown when the expression evaluates to true.
-| Field | Type | Description |
-| ----- | ---- | ----------- |
-| title | string |  Title is the display label for the link.   |
-| url | string |  URL is an expression that resolves to the link's href.   |
-| description | string |  Description is an optional human-readable summary shown alongside the link.  +optional |
-| if | string |  If is an optional expression condition. When set, the link is only shown when the expression evaluates to true.  +optional |
 
 
 ### DiscoveredArtifacts {#github-com-akuity-kargo-api-v1alpha1-DiscoveredArtifacts}
@@ -1803,14 +1772,6 @@ RawFormat specifies the format for raw resource representation.
 | value | string |   |
 
 
-### DiscoveredRef {#github-com-akuity-kargo-api-v1alpha1-DiscoveredRef}
- DiscoveredRef pairs a Git ref name with the ID of the object it resolves to.
-| Field | Type | Description |
-| ----- | ---- | ----------- |
-| name | string |  Name is the short name of the ref (e.g. a tag name such as "v1.2.3"), without its "refs/tags/" or "refs/heads/" prefix.   |
-| id | string |  ID is the identifier of the object the ref points to, typically a SHA-1 hash. For an annotated tag this is the tag object's ID, not the commit it dereferences to, because the value is obtained via git ls-remote --refs. This is immaterial to its sole use -- change detection -- since the value moves whenever the ref is re-pointed and is only ever compared against other values obtained the same way.   |
-
-
 ### DiscoveryResult {#github-com-akuity-kargo-api-v1alpha1-DiscoveryResult}
  DiscoveryResult represents the result of an artifact discovery operation for some subscription.
 | Field | Type | Description |
@@ -1840,7 +1801,6 @@ RawFormat specifies the format for raw resource representation.
 | ----- | ---- | ----------- |
 | metadata | k8s.io.apimachinery.pkg.apis.meta.v1.ObjectMeta |   |
 | alias | string |  Alias is a human-friendly alias for a piece of Freight. This is an optional field. A defaulting webhook will sync this field with the value of the kargo.akuity.io/alias label. When the alias label is not present or differs from the value of this field, the defaulting webhook will set the label to the value of this field. If the alias label is present and this field is empty, the defaulting webhook will set the value of this field to the value of the alias label. If this field is empty and the alias label is not present, the defaulting webhook will choose an available alias and assign it to both the field and label. |
-| discoveredAt | k8s.io.apimachinery.pkg.apis.meta.v1.Time |  DiscoveredAt is the time at which this Freight was discovered/created. A defaulting webhook initializes this to the creation time of the Freight.  +optional |
 | origin | [FreightOrigin](#github-com-akuity-kargo-api-v1alpha1-FreightOrigin) |  Origin describes a kind of Freight in terms of its origin.   |
 | commits | [GitCommit](#github-com-akuity-kargo-api-v1alpha1-GitCommit) |  Commits describes specific Git repository commits. |
 | images | [Image](#github-com-akuity-kargo-api-v1alpha1-Image) |  Images describes specific versions of specific container images. |
@@ -2020,21 +1980,12 @@ RawFormat specifies the format for raw resource representation.
 | committer | string |  Committer is the person who committed the commit. |
 
 
-### GitDiscoveryRefs {#github-com-akuity-kargo-api-v1alpha1-GitDiscoveryRefs}
- GitDiscoveryRefs records the raw remote ref state relevant to a GitSubscription's commit selection strategy at the time of discovery. Exactly one of its fields is populated, according to whether the strategy selects from a branch or from tags.
-| Field | Type | Description |
-| ----- | ---- | ----------- |
-| branchHead | string |  BranchHead is the unfiltered commit ID at the tip of the subscribed branch. It is populated for branch-based selection strategies (NewestFromBranch). Because it records the branch tip before any path filtering, an unchanged value guarantees the path-filtered selection cannot have changed either.  +optional |
-| tags | [DiscoveredRef](#github-com-akuity-kargo-api-v1alpha1-DiscoveredRef) |  Tags is the set of tags that satisfied the GitSubscription's name-based filters (semver and/or regex), paired with the commit IDs they reference, sorted by tag name for a stable comparison. It is populated for tag-based selection strategies (NewestTag, SemVer, Lexical). Path filtering is applied later, during selection, and does not affect this set.  +optional |
-
-
 ### GitDiscoveryResult {#github-com-akuity-kargo-api-v1alpha1-GitDiscoveryResult}
  GitDiscoveryResult represents the result of a Git discovery operation for a GitSubscription.
 | Field | Type | Description |
 | ----- | ---- | ----------- |
 | repoURL | string |  RepoURL is the repository URL of the GitSubscription.  TODO(v1.13.0): Remove SSH/SCP-style URL support from this pattern.     |
 | commits | [DiscoveredCommit](#github-com-akuity-kargo-api-v1alpha1-DiscoveredCommit) |  Commits is a list of commits discovered by the Warehouse for the GitSubscription. An empty list indicates that the discovery operation was successful, but no commits matching the GitSubscription criteria were found.  +optional |
-| observedRefs | [GitDiscoveryRefs](#github-com-akuity-kargo-api-v1alpha1-GitDiscoveryRefs) |  ObservedRefs records the raw remote ref state observed at the most recent successful discovery, after name-based filtering but before path filtering or commit selection. The Warehouse uses it to short-circuit discovery: at the start of a reconcile, a single git ls-remote call yields the current ref state, and if it matches this field, nothing relevant has moved and the previously selected Commits remain valid -- so an expensive clone and history walk can be skipped entirely. This field is optional; when absent (e.g. on a Warehouse that predates this feature), discovery falls through to a full clone and repopulates it.  +optional |
 
 
 ### GitHubWebhookReceiverConfig {#github-com-akuity-kargo-api-v1alpha1-GitHubWebhookReceiverConfig}
@@ -2057,7 +2008,6 @@ RawFormat specifies the format for raw resource representation.
 | ----- | ---- | ----------- |
 | allowTags | string |  AllowTags is a regular expression that can optionally be used to limit the tags that are considered in determining the newest commit of interest. Deprecated: Use allowTagsRegexes instead. |
 | allowTagsRegexes | string |  AllowTagsRegexes is a list of regular expressions that can optionally be used to limit the tags that are considered. Only has effect when CommitSelectionStrategy is Lexical, NewestTag, or SemVer. |
-| blobless | bool |  Blobless enables blobless cloning (--filter=blob:none) for this subscription. When true, git clones will defer blob downloads until checkout, significantly reducing clone time and disk usage for large repositories. The server must support partial clones; if it does not, the clone will fail. |
 | branch | string |  Branch references a particular branch of the repository. Only has effect when CommitSelectionStrategy is NewestFromBranch or unspecified. When left unspecified, the subscription is implicitly to the repository's default branch. Must be a valid branch name. |
 | commitSelectionStrategy | string |  CommitSelectionStrategy specifies the rules for how to identify the newest commit of interest in the repository specified by the RepoURL field. |
 | discoveryLimit | int64 |  DiscoveryLimit is an optional limit on the number of commits that can be discovered for this subscription. The upper limit is 100. |
@@ -2204,8 +2154,6 @@ RawFormat specifies the format for raw resource representation.
 | ----- | ---- | ----------- |
 | promotionPolicies | [PromotionPolicy](#github-com-akuity-kargo-api-v1alpha1-PromotionPolicy) |  PromotionPolicies defines policies governing the promotion of Freight to specific Stages within the Project. |
 | webhookReceivers | [WebhookReceiverConfig](#github-com-akuity-kargo-api-v1alpha1-WebhookReceiverConfig) |  WebhookReceivers describes Project-specific webhook receivers used for processing events from various external platforms |
-| freightLinks | [DeepLink](#github-com-akuity-kargo-api-v1alpha1-DeepLink) |  FreightLinks defines deep links shown when viewing Freight resources within this project. These are shown in addition to any cluster-level FreightLinks defined in ClusterConfig.  +optional |
-| stageLinks | [DeepLink](#github-com-akuity-kargo-api-v1alpha1-DeepLink) |  StageLinks defines deep links shown when viewing Stage resources within this project. These are shown in addition to any cluster-level StageLinks defined in ClusterConfig.  +optional |
 
 
 ### ProjectConfigStatus {#github-com-akuity-kargo-api-v1alpha1-ProjectConfigStatus}
@@ -2266,7 +2214,6 @@ RawFormat specifies the format for raw resource representation.
 | stage | string |  Stage is the name of the Stage to which this policy applies.  Deprecated: Use StageSelector instead.   |
 | stageSelector | [PromotionPolicySelector](#github-com-akuity-kargo-api-v1alpha1-PromotionPolicySelector) |  StageSelector is a selector that matches the Stage resource to which this policy applies. |
 | autoPromotionEnabled | bool |  AutoPromotionEnabled indicates whether new Freight can automatically be promoted into the Stage referenced by the Stage field. Note: There are may be other conditions also required for an auto-promotion to occur. This field defaults to false, but is commonly set to true for Stages that subscribe to Warehouses instead of other, upstream Stages. This allows users to define Stages that are automatically updated as soon as new artifacts are detected. |
-| autoRollback | [AutoRollbackConfig](#github-com-akuity-kargo-api-v1alpha1-AutoRollbackConfig) |  AutoRollback describes the conditions under which this Stage should automatically roll back to the last known-good (verified) Freight. When nil, auto-rollback is disabled.  Kargo Enterprise only: This field is ignored in Kargo OSS. |
 
 
 ### PromotionPolicySelector {#github-com-akuity-kargo-api-v1alpha1-PromotionPolicySelector}
@@ -2288,12 +2235,11 @@ RawFormat specifies the format for raw resource representation.
 
 
 ### PromotionSpec {#github-com-akuity-kargo-api-v1alpha1-PromotionSpec}
- PromotionSpec describes the desired transition of a specific Stage into a specific Freight.  
+ PromotionSpec describes the desired transition of a specific Stage into a specific Freight.
 | Field | Type | Description |
 | ----- | ---- | ----------- |
 | stage | string |  Stage specifies the name of the Stage to which this Promotion applies. The Stage referenced by this field MUST be in the same namespace as the Promotion.       |
-| freight | string |  Freight specifies the piece of Freight to be promoted into the Stage. Exactly one of Freight or Origin must be set.       |
-| origin | [FreightOrigin](#github-com-akuity-kargo-api-v1alpha1-FreightOrigin) |  Origin, when set, identifies the FreightOrigin whose auto-promotion candidate should be promoted. The mutating webhook resolves this to the candidate Freight for that origin and fills Freight before the Promotion is persisted. Exactly one of Freight or Origin must be set.   |
+| freight | string |  Freight specifies the piece of Freight to be promoted into the Stage referenced by the Stage field.       |
 | vars | [ExpressionVariable](#github-com-akuity-kargo-api-v1alpha1-ExpressionVariable) |  Vars is a list of variables that can be referenced by expressions in promotion steps. |
 | steps | [PromotionStep](#github-com-akuity-kargo-api-v1alpha1-PromotionStep) |  Steps specifies the directives to be executed as part of this Promotion. The order in which the directives are executed is the order in which they are listed in this field.     |
 
@@ -2385,7 +2331,7 @@ RawFormat specifies the format for raw resource representation.
 
 
 ### PromotionWindow {#github-com-akuity-kargo-api-v1alpha1-PromotionWindow}
- 
+ PromotionWindows defines time windows during which automatic promotions are allowed to occur. If not specified, automatic promotions can occur at any time.
 | Field | Type | Description |
 | ----- | ---- | ----------- |
 | metadata | k8s.io.apimachinery.pkg.apis.meta.v1.ObjectMeta |   |
@@ -2400,14 +2346,6 @@ RawFormat specifies the format for raw resource representation.
 | items | [PromotionWindow](#github-com-akuity-kargo-api-v1alpha1-PromotionWindow) |   |
 
 
-### PromotionWindowReference {#github-com-akuity-kargo-api-v1alpha1-PromotionWindowReference}
- 
-| Field | Type | Description |
-| ----- | ---- | ----------- |
-| name | string |  Name is the name of the time window.   |
-| kind | string |  Kind is the kind of the time window   |
-
-
 ### PromotionWindowSpec {#github-com-akuity-kargo-api-v1alpha1-PromotionWindowSpec}
  
 | Field | Type | Description |
@@ -2416,6 +2354,7 @@ RawFormat specifies the format for raw resource representation.
 | schedule | string |  Schedule describes a recurring time window. Example: "0 0 * * 1-5" means every weekday at midnight.   |
 | duration | string |  Duration is the length of time that the window lasts after the start time defined by the Schedule.   |
 | timeZone | string |  TimeZone is the IANA time zone name that applies to the time window. If not specified, UTC is assumed. |
+| labelSelector | k8s.io.apimachinery.pkg.apis.meta.v1.LabelSelector |  LabelSelector to target either Projects or Stages I am using a LabelSelector instead of a typed field to isolate all the changes to limit the conflict with upstream +optional |
 
 
 ### QuayWebhookReceiverConfig {#github-com-akuity-kargo-api-v1alpha1-QuayWebhookReceiverConfig}
@@ -2485,24 +2424,6 @@ RawFormat specifies the format for raw resource representation.
 | lastPromotion | [PromotionReference](#github-com-akuity-kargo-api-v1alpha1-PromotionReference) |  LastPromotion is a reference to the last completed promotion. |
 | autoPromotionEnabled | bool |  AutoPromotionEnabled indicates whether automatic promotion is enabled for the Stage based on the ProjectConfig. |
 | metadata | [StageStatus.MetadataEntry](#github-com-akuity-kargo-api-v1alpha1-StageStatus-MetadataEntry) |  Metadata is a map of arbitrary metadata associated with the Stage. This is useful for storing additional information about the Stage that can be shared across promotions, verifications, or other processes. |
-| autoPromotionHolds | [StageStatus.AutoPromotionHoldsEntry](#github-com-akuity-kargo-api-v1alpha1-StageStatus-AutoPromotionHoldsEntry) |  AutoPromotionHolds records active auto-promotion holds for this Stage. A hold is established when a Promotion selects Freight other than the auto-promotion candidate for that origin, pausing auto-promotion for that origin until explicitly released. Auto-promotions themselves never establish holds. Keys are string representations of FreightOrigins (e.g. "Warehouse/my-warehouse"); values describe the Promotion that established the hold. |
-| effectiveAutoPromotionHolds | [StageStatus.EffectiveAutoPromotionHoldsEntry](#github-com-akuity-kargo-api-v1alpha1-StageStatus-EffectiveAutoPromotionHoldsEntry) |  EffectiveAutoPromotionHolds is the set of auto-promotion holds in effect right now. It is recomputed every reconciliation from AutoPromotionHolds plus the newest in-flight Promotions, and unlike AutoPromotionHolds is not durable. Clients should read this map to reflect current hold state. |
-
-
-### StageStatus.AutoPromotionHoldsEntry {#github-com-akuity-kargo-api-v1alpha1-StageStatus-AutoPromotionHoldsEntry}
- 
-| Field | Type | Description |
-| ----- | ---- | ----------- |
-| key | string |   |
-| value | [AutoPromotionHold](#github-com-akuity-kargo-api-v1alpha1-AutoPromotionHold) |   |
-
-
-### StageStatus.EffectiveAutoPromotionHoldsEntry {#github-com-akuity-kargo-api-v1alpha1-StageStatus-EffectiveAutoPromotionHoldsEntry}
- 
-| Field | Type | Description |
-| ----- | ---- | ----------- |
-| key | string |   |
-| value | [AutoPromotionHold](#github-com-akuity-kargo-api-v1alpha1-AutoPromotionHold) |   |
 
 
 ### StageStatus.MetadataEntry {#github-com-akuity-kargo-api-v1alpha1-StageStatus-MetadataEntry}

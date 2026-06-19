@@ -35,18 +35,6 @@ type ProjectConfigSpec struct {
 	// WebhookReceivers describes Project-specific webhook receivers used for
 	// processing events from various external platforms
 	WebhookReceivers []WebhookReceiverConfig `json:"webhookReceivers,omitempty" protobuf:"bytes,2,rep,name=webhookReceivers"`
-	// FreightLinks defines deep links shown when viewing Freight resources
-	// within this project. These are shown in addition to any cluster-level
-	// FreightLinks defined in ClusterConfig.
-	//
-	// +optional
-	FreightLinks []DeepLink `json:"freightLinks,omitempty" protobuf:"bytes,3,rep,name=freightLinks"`
-	// StageLinks defines deep links shown when viewing Stage resources within
-	// this project. These are shown in addition to any cluster-level
-	// StageLinks defined in ClusterConfig.
-	//
-	// +optional
-	StageLinks []DeepLink `json:"stageLinks,omitempty" protobuf:"bytes,4,rep,name=stageLinks"`
 }
 
 // ProjectConfigStatus describes the current status of a ProjectConfig.
@@ -82,60 +70,6 @@ func (p *ProjectConfigStatus) SetConditions(conditions []metav1.Condition) {
 	p.Conditions = conditions
 }
 
-// DeepLink defines a configurable external link that is rendered in the UI
-// when viewing a Freight or Stage resource. The URL is an expression evaluated
-// against the resource. The optional If field is an expression condition;
-// when set, the link is only shown when the expression evaluates to true.
-type DeepLink struct {
-	// Title is the display label for the link.
-	//
-	// +kubebuilder:validation:MinLength=1
-	Title string `json:"title" protobuf:"bytes,1,opt,name=title"`
-	// URL is an expression that resolves to the link's href.
-	//
-	// +kubebuilder:validation:MinLength=1
-	URL string `json:"url" protobuf:"bytes,2,opt,name=url"`
-	// Description is an optional human-readable summary shown alongside the
-	// link.
-	//
-	// +optional
-	Description string `json:"description,omitempty" protobuf:"bytes,3,opt,name=description"`
-	// If is an optional expression condition. When set, the link is only shown
-	// when the expression evaluates to true.
-	//
-	// +optional
-	If string `json:"if,omitempty" protobuf:"bytes,4,opt,name=if"`
-}
-
-// AutoRollbackConfig describes the conditions under which a Stage should
-// automatically roll back to the last known-good (verified) Freight.
-type AutoRollbackConfig struct {
-	// OnPromotion is the list of terminal Promotion phases that should trigger
-	// an automated rollback. Only Failed and Errored are accepted. Note that
-	// unsuccessful promotions (as opposed to unsuccessful verifications) may not
-	// necessarily indicate a problem with the Freight, since promotions might fail
-	// due to transient issues with the deployment itself (network, credential
-	// expirations, etc...). Defaults to [].
-	//
-	// +optional
-	// +listType=set
-	// +kubebuilder:validation:MaxItems=2
-	// +kubebuilder:validation:XValidation:message="onPromotion[0] must be Failed or Errored",rule="self.size() == 0 || self[0] == 'Failed' || self[0] == 'Errored'"
-	// +kubebuilder:validation:XValidation:message="onPromotion[1] must be Failed or Errored",rule="self.size() <= 1 || self[1] == 'Failed' || self[1] == 'Errored'"
-	OnPromotion []PromotionPhase `json:"onPromotion,omitempty" protobuf:"bytes,1,rep,name=onPromotion"`
-	// OnVerification is the list of terminal verification phases that should
-	// trigger an automated rollback. Only Failed and Error are accepted (note:
-	// "Error", not "Errored" as in onPromotion). When absent or empty,
-	// defaults to [Failed].
-	//
-	// +optional
-	// +listType=set
-	// +kubebuilder:validation:MaxItems=2
-	// +kubebuilder:validation:XValidation:message="onVerification[0] must be Failed or Error",rule="self.size() == 0 || self[0] == 'Failed' || self[0] == 'Error'"
-	// +kubebuilder:validation:XValidation:message="onVerification[1] must be Failed or Error",rule="self.size() <= 1 || self[1] == 'Failed' || self[1] == 'Error'"
-	OnVerification []VerificationPhase `json:"onVerification,omitempty" protobuf:"bytes,2,rep,name=onVerification"`
-}
-
 // PromotionPolicy defines policies governing the promotion of Freight to a
 // specific Stage.
 //
@@ -149,7 +83,7 @@ type PromotionPolicy struct {
 	Stage string `json:"stage,omitempty" protobuf:"bytes,1,opt,name=stage"`
 	// StageSelector is a selector that matches the Stage resource to which
 	// this policy applies.
-	StageSelector *PromotionPolicySelector `json:"stageSelector,omitempty" protobuf:"bytes,2,opt,name=stageSelector"`
+	StageSelector *PromotionPolicySelector `json:"stageSelector,omitempty" protobuf:"bytes,3,opt,name=stageSelector"`
 	// AutoPromotionEnabled indicates whether new Freight can automatically be
 	// promoted into the Stage referenced by the Stage field. Note: There are may
 	// be other conditions also required for an auto-promotion to occur. This
@@ -158,12 +92,6 @@ type PromotionPolicy struct {
 	// users to define Stages that are automatically updated as soon as new
 	// artifacts are detected.
 	AutoPromotionEnabled bool `json:"autoPromotionEnabled,omitempty" protobuf:"varint,2,opt,name=autoPromotionEnabled"`
-	// AutoRollback describes the conditions under which this Stage should
-	// automatically roll back to the last known-good (verified) Freight. When
-	// nil, auto-rollback is disabled.
-	//
-	// Kargo Enterprise only: This field is ignored in Kargo OSS.
-	AutoRollback *AutoRollbackConfig `json:"autoRollback,omitempty" protobuf:"bytes,4,opt,name=autoRollback"`
 }
 
 // WebhookReceiverConfig describes the configuration for a single webhook
@@ -517,7 +445,6 @@ type GenericWebhookTargetKind string
 
 const (
 	GenericWebhookTargetKindWarehouse GenericWebhookTargetKind = "Warehouse"
-	GenericWebhookTargetKindPromotion GenericWebhookTargetKind = "Promotion"
 )
 
 // IndexSelector defines selection criteria that match resources on the basis of
