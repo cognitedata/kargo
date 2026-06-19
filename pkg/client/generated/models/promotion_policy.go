@@ -4,8 +4,6 @@ package models
 
 import (
 	"context"
-	stderrors "errors"
-	"strconv"
 
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/strfmt"
@@ -26,11 +24,6 @@ type PromotionPolicy struct {
 	// artifacts are detected.
 	AutoPromotionEnabled bool `json:"autoPromotionEnabled,omitempty"`
 
-	// PromotionWindows defines time windows during which automatic promotions
-	// are allowed to occur. If not specified, automatic promotions can occur at
-	// any time.
-	PromotionWindows []*PromotionWindowReference `json:"promotionWindows"`
-
 	// Stage is the name of the Stage to which this policy applies.
 	//
 	// Deprecated: Use StageSelector instead.
@@ -49,10 +42,6 @@ type PromotionPolicy struct {
 func (m *PromotionPolicy) Validate(formats strfmt.Registry) error {
 	var res []error
 
-	if err := m.validatePromotionWindows(formats); err != nil {
-		res = append(res, err)
-	}
-
 	if err := m.validateStageSelector(formats); err != nil {
 		res = append(res, err)
 	}
@@ -60,36 +49,6 @@ func (m *PromotionPolicy) Validate(formats strfmt.Registry) error {
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
-	return nil
-}
-
-func (m *PromotionPolicy) validatePromotionWindows(formats strfmt.Registry) error {
-	if swag.IsZero(m.PromotionWindows) { // not required
-		return nil
-	}
-
-	for i := 0; i < len(m.PromotionWindows); i++ {
-		if swag.IsZero(m.PromotionWindows[i]) { // not required
-			continue
-		}
-
-		if m.PromotionWindows[i] != nil {
-			if err := m.PromotionWindows[i].Validate(formats); err != nil {
-				ve := new(errors.Validation)
-				if stderrors.As(err, &ve) {
-					return ve.ValidateName("promotionWindows" + "." + strconv.Itoa(i))
-				}
-				ce := new(errors.CompositeError)
-				if stderrors.As(err, &ce) {
-					return ce.ValidateName("promotionWindows" + "." + strconv.Itoa(i))
-				}
-
-				return err
-			}
-		}
-
-	}
-
 	return nil
 }
 
@@ -105,10 +64,6 @@ func (m *PromotionPolicy) validateStageSelector(formats strfmt.Registry) error {
 func (m *PromotionPolicy) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	var res []error
 
-	if err := m.contextValidatePromotionWindows(ctx, formats); err != nil {
-		res = append(res, err)
-	}
-
 	if err := m.contextValidateStageSelector(ctx, formats); err != nil {
 		res = append(res, err)
 	}
@@ -116,35 +71,6 @@ func (m *PromotionPolicy) ContextValidate(ctx context.Context, formats strfmt.Re
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
-	return nil
-}
-
-func (m *PromotionPolicy) contextValidatePromotionWindows(ctx context.Context, formats strfmt.Registry) error {
-
-	for i := 0; i < len(m.PromotionWindows); i++ {
-
-		if m.PromotionWindows[i] != nil {
-
-			if swag.IsZero(m.PromotionWindows[i]) { // not required
-				return nil
-			}
-
-			if err := m.PromotionWindows[i].ContextValidate(ctx, formats); err != nil {
-				ve := new(errors.Validation)
-				if stderrors.As(err, &ve) {
-					return ve.ValidateName("promotionWindows" + "." + strconv.Itoa(i))
-				}
-				ce := new(errors.CompositeError)
-				if stderrors.As(err, &ce) {
-					return ce.ValidateName("promotionWindows" + "." + strconv.Itoa(i))
-				}
-
-				return err
-			}
-		}
-
-	}
-
 	return nil
 }
 

@@ -8,6 +8,9 @@ import (
 // +kubebuilder:object:root=true
 // +kubebuilder:printcolumn:name=TimeZone,type=string,JSONPath=`.spec.timeZone`
 
+// PromotionWindows defines time windows during which automatic promotions
+// are allowed to occur. If not specified, automatic promotions can occur at
+// any time.
 type PromotionWindow struct {
 	metav1.TypeMeta   `json:",inline"`
 	metav1.ObjectMeta `json:"metadata,omitempty" protobuf:"bytes,1,opt,name=metadata"`
@@ -38,17 +41,12 @@ type PromotionWindowSpec struct {
 	// TimeZone is the IANA time zone name that applies to the time window.
 	// If not specified, UTC is assumed.
 	TimeZone string `json:"timeZone,omitempty" protobuf:"bytes,4,opt,name=timeZone"`
-}
 
-type PromotionWindowReference struct {
-	// Name is the name of the time window.
-	//
-	// +kubebuilder:validation:Required
-	Name string `json:"name" protobuf:"bytes,1,opt,name=name"`
-	// Kind is the kind of the time window
-	//
-	// +kubebuilder:validation:Enum=PromotionWindow;ClusterPromotionWindow;
-	Kind string `json:"kind,omitempty" protobuf:"bytes,2,opt,name=kind"`
+	// LabelSelector to target either Projects or Stages.
+	// I am using a LabelSelector instead of a typed field to isolate all the changes to limit the conflict with upstream.
+	// Beware: empty labelSelector means it matches all in the namespace
+	// +optional
+	LabelSelector metav1.LabelSelector `json:"labelSelector,omitempty" protobuf:"bytes,5,opt,name=labelSelector"`
 }
 
 // +kubebuilder:object:root=true

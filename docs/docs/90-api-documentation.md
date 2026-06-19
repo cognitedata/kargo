@@ -2214,7 +2214,6 @@ RawFormat specifies the format for raw resource representation.
 | stage | string |  Stage is the name of the Stage to which this policy applies.  Deprecated: Use StageSelector instead.   |
 | stageSelector | [PromotionPolicySelector](#github-com-akuity-kargo-api-v1alpha1-PromotionPolicySelector) |  StageSelector is a selector that matches the Stage resource to which this policy applies. |
 | autoPromotionEnabled | bool |  AutoPromotionEnabled indicates whether new Freight can automatically be promoted into the Stage referenced by the Stage field. Note: There are may be other conditions also required for an auto-promotion to occur. This field defaults to false, but is commonly set to true for Stages that subscribe to Warehouses instead of other, upstream Stages. This allows users to define Stages that are automatically updated as soon as new artifacts are detected. |
-| promotionWindows | [PromotionWindowReference](#github-com-akuity-kargo-api-v1alpha1-PromotionWindowReference) |  PromotionWindows defines time windows during which automatic promotions are allowed to occur. If not specified, automatic promotions can occur at any time. |
 
 
 ### PromotionPolicySelector {#github-com-akuity-kargo-api-v1alpha1-PromotionPolicySelector}
@@ -2332,7 +2331,7 @@ RawFormat specifies the format for raw resource representation.
 
 
 ### PromotionWindow {#github-com-akuity-kargo-api-v1alpha1-PromotionWindow}
- 
+ PromotionWindows defines time windows during which automatic promotions are allowed to occur. If not specified, automatic promotions can occur at any time.
 | Field | Type | Description |
 | ----- | ---- | ----------- |
 | metadata | k8s.io.apimachinery.pkg.apis.meta.v1.ObjectMeta |   |
@@ -2347,14 +2346,6 @@ RawFormat specifies the format for raw resource representation.
 | items | [PromotionWindow](#github-com-akuity-kargo-api-v1alpha1-PromotionWindow) |   |
 
 
-### PromotionWindowReference {#github-com-akuity-kargo-api-v1alpha1-PromotionWindowReference}
- 
-| Field | Type | Description |
-| ----- | ---- | ----------- |
-| name | string |  Name is the name of the time window.   |
-| kind | string |  Kind is the kind of the time window   |
-
-
 ### PromotionWindowSpec {#github-com-akuity-kargo-api-v1alpha1-PromotionWindowSpec}
  
 | Field | Type | Description |
@@ -2363,6 +2354,7 @@ RawFormat specifies the format for raw resource representation.
 | schedule | string |  Schedule describes a recurring time window. Example: "0 0 * * 1-5" means every weekday at midnight.   |
 | duration | string |  Duration is the length of time that the window lasts after the start time defined by the Schedule.   |
 | timeZone | string |  TimeZone is the IANA time zone name that applies to the time window. If not specified, UTC is assumed. |
+| labelSelector | k8s.io.apimachinery.pkg.apis.meta.v1.LabelSelector |  LabelSelector to target either Projects or Stages I am using a LabelSelector instead of a typed field to isolate all the changes to limit the conflict with upstream +optional |
 
 
 ### QuayWebhookReceiverConfig {#github-com-akuity-kargo-api-v1alpha1-QuayWebhookReceiverConfig}

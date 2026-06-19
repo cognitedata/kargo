@@ -1358,7 +1358,7 @@ message PromotionPolicy {
 
   // StageSelector is a selector that matches the Stage resource to which
   // this policy applies.
-  optional PromotionPolicySelector stageSelector = 2;
+  optional PromotionPolicySelector stageSelector = 3;
 
   // AutoPromotionEnabled indicates whether new Freight can automatically be
   // promoted into the Stage referenced by the Stage field. Note: There are may
@@ -1367,12 +1367,7 @@ message PromotionPolicy {
   // subscribe to Warehouses instead of other, upstream Stages. This allows
   // users to define Stages that are automatically updated as soon as new
   // artifacts are detected.
-  optional bool autoPromotionEnabled = 3;
-
-  // PromotionWindows defines time windows during which automatic promotions
-  // are allowed to occur. If not specified, automatic promotions can occur at
-  // any time.
-  repeated PromotionWindowReference promotionWindows = 4;
+  optional bool autoPromotionEnabled = 2;
 }
 
 // PromotionPolicySelector is a selector that matches the resource to which
@@ -1675,6 +1670,9 @@ message PromotionTemplateSpec {
   repeated PromotionStep steps = 1;
 }
 
+// PromotionWindows defines time windows during which automatic promotions
+// are allowed to occur. If not specified, automatic promotions can occur at
+// any time.
 message PromotionWindow {
   optional .k8s.io.apimachinery.pkg.apis.meta.v1.ObjectMeta metadata = 1;
 
@@ -1690,18 +1688,6 @@ message PromotionWindowList {
   optional .k8s.io.apimachinery.pkg.apis.meta.v1.ListMeta metadata = 1;
 
   repeated PromotionWindow items = 2;
-}
-
-message PromotionWindowReference {
-  // Name is the name of the time window.
-  //
-  // +kubebuilder:validation:Required
-  optional string name = 1;
-
-  // Kind is the kind of the time window
-  //
-  // +kubebuilder:validation:Enum=PromotionWindow;ClusterPromotionWindow;
-  optional string kind = 2;
 }
 
 message PromotionWindowSpec {
@@ -1726,6 +1712,11 @@ message PromotionWindowSpec {
   // TimeZone is the IANA time zone name that applies to the time window.
   // If not specified, UTC is assumed.
   optional string timeZone = 4;
+
+  // LabelSelector to target either Projects or Stages
+  // I am using a LabelSelector instead of a typed field to isolate all the changes to limit the conflict with upstream
+  // +optional
+  optional .k8s.io.apimachinery.pkg.apis.meta.v1.LabelSelector labelSelector = 5;
 }
 
 // QuayWebhookReceiverConfig describes a webhook receiver that is compatible

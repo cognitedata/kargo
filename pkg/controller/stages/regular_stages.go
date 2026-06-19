@@ -1962,9 +1962,11 @@ func (r *RegularStageReconciler) autoPromotionAllowed(
 
 		// If we reach this point, we have found a matching PromotionPolicy.
 
-		allowed, err := api.CheckPromotionWindows(ctx, now, policy.PromotionWindows, r.client, stage.Namespace)
+		allowed, err := api.CheckPromotionWindows(ctx, now, r.client, stage)
 		if err != nil {
-			return policy.AutoPromotionEnabled, fmt.Errorf("error checking PromotionWindows for PromotionPolicy in Project %q: %w", stage.Namespace, err)
+			return policy.AutoPromotionEnabled, fmt.Errorf(
+				"error checking PromotionWindows for PromotionPolicy in Project %q: %w", stage.Namespace, err,
+			)
 		}
 		if !allowed {
 			logger.Debug("auto promotion denied by promotion window")
