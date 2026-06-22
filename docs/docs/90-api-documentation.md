@@ -1723,6 +1723,22 @@ RawFormat specifies the format for raw resource representation.
 | items | [ClusterPromotionTask](#github-com-akuity-kargo-api-v1alpha1-ClusterPromotionTask) |   |
 
 
+### CognitePromotionWindow {#github-com-akuity-kargo-api-v1alpha1-CognitePromotionWindow}
+ PromotionWindows defines time windows during which automatic promotions are allowed to occur. If not specified, automatic promotions can occur at any time.
+| Field | Type | Description |
+| ----- | ---- | ----------- |
+| metadata | k8s.io.apimachinery.pkg.apis.meta.v1.ObjectMeta |   |
+| spec | [PromotionWindowSpec](#github-com-akuity-kargo-api-v1alpha1-PromotionWindowSpec) |  Spec describes the composition of an AutoPromotionWindow, including the recurring time window and time zone.   |
+
+
+### CognitePromotionWindowList {#github-com-akuity-kargo-api-v1alpha1-CognitePromotionWindowList}
+ CognitePromotionWindowList contains a list of PromotionWindows.
+| Field | Type | Description |
+| ----- | ---- | ----------- |
+| metadata | k8s.io.apimachinery.pkg.apis.meta.v1.ListMeta |   |
+| items | [CognitePromotionWindow](#github-com-akuity-kargo-api-v1alpha1-CognitePromotionWindow) |   |
+
+
 ### CurrentStage {#github-com-akuity-kargo-api-v1alpha1-CurrentStage}
  CurrentStage reflects a Stage's current use of Freight.
 | Field | Type | Description |
@@ -2328,22 +2344,6 @@ RawFormat specifies the format for raw resource representation.
 | ----- | ---- | ----------- |
 | vars | [ExpressionVariable](#github-com-akuity-kargo-api-v1alpha1-ExpressionVariable) |  Vars is a list of variables that can be referenced by expressions in promotion steps. |
 | steps | [PromotionStep](#github-com-akuity-kargo-api-v1alpha1-PromotionStep) |  Steps specifies the directives to be executed as part of a Promotion. The order in which the directives are executed is the order in which they are listed in this field.      |
-
-
-### PromotionWindow {#github-com-akuity-kargo-api-v1alpha1-PromotionWindow}
- PromotionWindows defines time windows during which automatic promotions are allowed to occur. If not specified, automatic promotions can occur at any time.
-| Field | Type | Description |
-| ----- | ---- | ----------- |
-| metadata | k8s.io.apimachinery.pkg.apis.meta.v1.ObjectMeta |   |
-| spec | [PromotionWindowSpec](#github-com-akuity-kargo-api-v1alpha1-PromotionWindowSpec) |  Spec describes the composition of an AutoPromotionWindow, including the recurring time window and time zone.   |
-
-
-### PromotionWindowList {#github-com-akuity-kargo-api-v1alpha1-PromotionWindowList}
- PromotionWindowList contains a list of PromotionWindows.
-| Field | Type | Description |
-| ----- | ---- | ----------- |
-| metadata | k8s.io.apimachinery.pkg.apis.meta.v1.ListMeta |   |
-| items | [PromotionWindow](#github-com-akuity-kargo-api-v1alpha1-PromotionWindow) |   |
 
 
 ### PromotionWindowSpec {#github-com-akuity-kargo-api-v1alpha1-PromotionWindowSpec}

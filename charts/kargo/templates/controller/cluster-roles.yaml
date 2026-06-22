@@ -79,7 +79,7 @@ rules:
   - clusterpromotiontasks
   - promotiontasks
   - warehouses
-  - promotionwindows
+  - cognitepromotionwindows
   verbs:
   - get
   - list

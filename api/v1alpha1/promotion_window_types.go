@@ -4,14 +4,14 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
-// +kubebuilder:resource:shortName={promotionwindow,promotionwindows}
+// +kubebuilder:resource:shortName={cognitepromotionwindow,cognitepromotionwindows}
 // +kubebuilder:object:root=true
 // +kubebuilder:printcolumn:name=TimeZone,type=string,JSONPath=`.spec.timeZone`
 
 // PromotionWindows defines time windows during which automatic promotions
 // are allowed to occur. If not specified, automatic promotions can occur at
 // any time.
-type PromotionWindow struct {
+type CognitePromotionWindow struct {
 	metav1.TypeMeta   `json:",inline"`
 	metav1.ObjectMeta `json:"metadata,omitempty" protobuf:"bytes,1,opt,name=metadata"`
 
@@ -57,9 +57,9 @@ type PromotionWindowSpec struct {
 
 // +kubebuilder:object:root=true
 
-// PromotionWindowList contains a list of PromotionWindows.
-type PromotionWindowList struct {
+// CognitePromotionWindowList contains a list of PromotionWindows.
+type CognitePromotionWindowList struct {
 	metav1.TypeMeta `json:",inline"`
 	metav1.ListMeta `json:"metadata,omitempty" protobuf:"bytes,1,opt,name=metadata"`
-	Items           []PromotionWindow `json:"items" protobuf:"bytes,2,rep,name=items"`
+	Items           []CognitePromotionWindow `json:"items" protobuf:"bytes,2,rep,name=items"`
 }

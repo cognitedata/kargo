@@ -4,17 +4,17 @@ kind: CustomResourceDefinition
 metadata:
   annotations:
     controller-gen.kubebuilder.io/version: v0.19.0
-  name: promotionwindows.kargo.akuity.io
+  name: cognitepromotionwindows.kargo.akuity.io
 spec:
   group: kargo.akuity.io
   names:
-    kind: PromotionWindow
-    listKind: PromotionWindowList
-    plural: promotionwindows
+    kind: CognitePromotionWindow
+    listKind: CognitePromotionWindowList
+    plural: cognitepromotionwindows
     shortNames:
-    - promotionwindow
-    - promotionwindows
-    singular: promotionwindow
+    - cognitepromotionwindow
+    - cognitepromotionwindows
+    singular: cognitepromotionwindow
   scope: Namespaced
   versions:
   - additionalPrinterColumns:
@@ -57,8 +57,9 @@ spec:
                   time defined by the Schedule.
                 type: string
                 x-kubernetes-validations:
-                - message: Duration must be positive
-                  rule: 'duration(self) > duration(''0s'') '
+                - message: 'Duration must follow duration format (e.g: 30s) and be
+                    positive'
+                  rule: duration(self) > duration('0s')
               kind:
                 description: |-
                   Kind is either "deny" or "allow", indicating whether the time window

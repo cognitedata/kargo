@@ -45,8 +45,8 @@ func addKnownTypes(scheme *runtime.Scheme) error {
 		&PromotionTaskList{},
 		&Warehouse{},
 		&WarehouseList{},
-		&PromotionWindow{},
-		&PromotionWindowList{},
+		&CognitePromotionWindow{},
+		&CognitePromotionWindowList{},
 	)
 	metav1.AddToGroupVersion(scheme, GroupVersion)
 	return nil
