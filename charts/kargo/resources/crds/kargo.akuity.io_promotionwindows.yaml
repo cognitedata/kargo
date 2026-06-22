@@ -56,6 +56,9 @@ spec:
                   Duration is the length of time that the window lasts after the start
                   time defined by the Schedule.
                 type: string
+                x-kubernetes-validations:
+                - message: Duration must be positive
+                  rule: 'duration(self) > duration(''0s'') '
               kind:
                 description: |-
                   Kind is either "deny" or "allow", indicating whether the time window
@@ -66,8 +69,9 @@ spec:
                 type: string
               labelSelector:
                 description: |-
-                  LabelSelector to target either Projects or Stages
-                  I am using a LabelSelector instead of a typed field to isolate all the changes to limit the conflict with upstream
+                  LabelSelector to target either Projects or Stages.
+                  I am using a LabelSelector instead of a typed field to isolate all the changes to limit the conflict with upstream.
+                  Beware: empty labelSelector means it matches all in the namespace
                 properties:
                   matchExpressions:
                     description: matchExpressions is a list of label selector requirements.

@@ -23,7 +23,7 @@ func generatePromotionWindow(name, kind, schedule string) *kargoapi.PromotionWin
 		Spec: kargoapi.PromotionWindowSpec{
 			Kind:     kind,
 			Schedule: schedule,
-			Duration: "1h",
+			Duration: &metav1.Duration{Duration: time.Hour},
 			LabelSelector: metav1.LabelSelector{
 				MatchLabels: map[string]string{
 					"env": "staging",
