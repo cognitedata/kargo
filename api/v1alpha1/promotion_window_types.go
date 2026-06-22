@@ -33,11 +33,17 @@ type PromotionWindowSpec struct {
 	//
 	// +kubebuilder:validation:Required
 	Schedule string `json:"schedule" protobuf:"bytes,2,opt,name=schedule"`
+	// It seems `metav1.Duration` doesn't imply any validation.
+	// Also using kubebuilder's `validation:Minimum` doesn't do any thing here.
+	// Also Also, from CEL point of view, this field is essentially a string.
+	// The following CEL rule does the job. Feel free to rewrite this in a simpler format if you can.
+
 	// Duration is the length of time that the window lasts after the start
 	// time defined by the Schedule.
 	//
 	// +kubebuilder:validation:Required
-	Duration string `json:"duration,omitempty" protobuf:"bytes,3,opt,name=duration"`
+	// +kubebuilder:validation:XValidation:rule="duration(self) > duration('0s')", message="Duration must follow duration format (e.g: 30s) and be positive"
+	Duration *metav1.Duration `json:"duration,omitempty" protobuf:"bytes,3,opt,name=duration"`
 	// TimeZone is the IANA time zone name that applies to the time window.
 	// If not specified, UTC is assumed.
 	TimeZone string `json:"timeZone,omitempty" protobuf:"bytes,4,opt,name=timeZone"`

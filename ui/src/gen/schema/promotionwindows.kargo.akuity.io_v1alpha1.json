@@ -18,7 +18,13 @@
       "properties": {
         "duration": {
           "description": "Duration is the length of time that the window lasts after the start\ntime defined by the Schedule.",
-          "type": "string"
+          "type": "string",
+          "x-kubernetes-validations": [
+            {
+              "message": "Duration must be positive",
+              "rule": "duration(self) > duration('0s') "
+            }
+          ]
         },
         "kind": {
           "description": "Kind is either \"deny\" or \"allow\", indicating whether the time window\nrepresents a period during which promotions are denied or allowed.",
@@ -29,7 +35,7 @@
           "type": "string"
         },
         "labelSelector": {
-          "description": "LabelSelector to target either Projects or Stages\nI am using a LabelSelector instead of a typed field to isolate all the changes to limit the conflict with upstream",
+          "description": "LabelSelector to target either Projects or Stages.\nI am using a LabelSelector instead of a typed field to isolate all the changes to limit the conflict with upstream.\nBeware: empty labelSelector means it matches all in the namespace",
           "properties": {
             "matchExpressions": {
               "description": "matchExpressions is a list of label selector requirements. The requirements are ANDed.",

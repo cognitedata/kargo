@@ -2352,9 +2352,9 @@ RawFormat specifies the format for raw resource representation.
 | ----- | ---- | ----------- |
 | kind | string |  Kind is either "deny" or "allow", indicating whether the time window represents a period during which promotions are denied or allowed.   |
 | schedule | string |  Schedule describes a recurring time window. Example: "0 0 * * 1-5" means every weekday at midnight.   |
-| duration | string |  Duration is the length of time that the window lasts after the start time defined by the Schedule.   |
+| duration | k8s.io.apimachinery.pkg.apis.meta.v1.Duration |  Duration is the length of time that the window lasts after the start time defined by the Schedule.    |
 | timeZone | string |  TimeZone is the IANA time zone name that applies to the time window. If not specified, UTC is assumed. |
-| labelSelector | k8s.io.apimachinery.pkg.apis.meta.v1.LabelSelector |  LabelSelector to target either Projects or Stages I am using a LabelSelector instead of a typed field to isolate all the changes to limit the conflict with upstream +optional |
+| labelSelector | k8s.io.apimachinery.pkg.apis.meta.v1.LabelSelector |  LabelSelector to target either Projects or Stages. I am using a LabelSelector instead of a typed field to isolate all the changes to limit the conflict with upstream. Beware: empty labelSelector means it matches all in the namespace +optional |
 
 
 ### QuayWebhookReceiverConfig {#github-com-akuity-kargo-api-v1alpha1-QuayWebhookReceiverConfig}

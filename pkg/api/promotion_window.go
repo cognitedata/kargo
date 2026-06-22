@@ -95,21 +95,14 @@ func checkPromotionWindow(ctx context.Context,
 	if promotionWindowSpec == nil {
 		return false, errors.New("promotion window spec is nil")
 	}
-
 	cronParser := cron.NewParser(cron.Minute | cron.Hour | cron.Dom | cron.Month | cron.Dow)
 
 	sched, err := cronParser.Parse(promotionWindowSpec.Schedule)
 	if err != nil {
 		return false, err
 	}
-	duration, err := time.ParseDuration(promotionWindowSpec.Duration)
-	if err != nil {
-		return false, err
-	}
-	if duration <= 0 {
-		return false, fmt.Errorf("duration must be positive")
-	}
 
+	duration := promotionWindowSpec.Duration.Duration
 	loc, err := time.LoadLocation(promotionWindowSpec.TimeZone)
 	if err != nil {
 		return false, fmt.Errorf("unable to load time zone: %w", err)
