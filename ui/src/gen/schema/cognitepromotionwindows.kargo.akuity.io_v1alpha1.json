@@ -21,8 +21,8 @@
           "type": "string",
           "x-kubernetes-validations": [
             {
-              "message": "Duration must be positive",
-              "rule": "duration(self) > duration('0s') "
+              "message": "Duration must follow duration format (e.g: 30s) and be positive",
+              "rule": "duration(self) > duration('0s')"
             }
           ]
         },

@@ -129,15 +129,14 @@ func ListMatchingPromotionWindows(
 	ctx context.Context,
 	c client.Client,
 	stage metav1.ObjectMeta,
-) ([]kargoapi.PromotionWindow, error) {
-
+) ([]kargoapi.CognitePromotionWindow, error) {
 	// I am bruteforcing it a bit. Listing all the promotionWindows in the namespace
 	// and then filtering using the labelSelectors
 	// That should not be too bad considering we don't expect many promotion windows per namespace,
 	// and the c.List() call should be cached (I think?).
 	// We might to build omething smarter here in case of trouble.
 	//  For example, rethink the CRD or build an index from watching k8s resources
-	promotionWindowList := kargoapi.PromotionWindowList{}
+	promotionWindowList := kargoapi.CognitePromotionWindowList{}
 	if err := c.List(
 		ctx,
 		&promotionWindowList,
@@ -150,7 +149,7 @@ func ListMatchingPromotionWindows(
 		)
 	}
 
-	matchingPromotionWindows := make([]kargoapi.PromotionWindow, 0, len(promotionWindowList.Items))
+	matchingPromotionWindows := make([]kargoapi.CognitePromotionWindow, 0, len(promotionWindowList.Items))
 	for _, window := range promotionWindowList.Items {
 		selector, err := metav1.LabelSelectorAsSelector(&window.Spec.LabelSelector)
 		if err != nil {

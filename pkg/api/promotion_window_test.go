@@ -14,8 +14,8 @@ import (
 	kargoapi "github.com/akuity/kargo/api/v1alpha1"
 )
 
-func generatePromotionWindow(name, kind, schedule string) *kargoapi.PromotionWindow {
-	return &kargoapi.PromotionWindow{
+func generatePromotionWindow(name, kind, schedule string) *kargoapi.CognitePromotionWindow {
+	return &kargoapi.CognitePromotionWindow{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      name,
 			Namespace: "test",
