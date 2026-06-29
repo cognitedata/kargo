@@ -81,6 +81,7 @@ require (
 	github.com/patrickmn/go-cache v2.1.0+incompatible
 	github.com/pelletier/go-toml/v2 v2.4.3
 	github.com/pkg/browser v0.0.0-20240102092130-5ac0b6a4141c
+	github.com/robfig/cron/v3 v3.0.0
 	github.com/rs/cors v1.11.1
 	github.com/sosedoff/gitkit v0.4.0
 	github.com/spf13/cobra v1.10.2
