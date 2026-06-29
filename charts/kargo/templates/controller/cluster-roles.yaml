@@ -78,6 +78,7 @@ rules:
   - clusterpromotiontasks
   - promotiontasks
   - warehouses
+  - cognitepromotionwindows
   verbs:
   - get
   - list

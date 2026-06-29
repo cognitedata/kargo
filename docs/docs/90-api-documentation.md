@@ -1723,6 +1723,22 @@ RawFormat specifies the format for raw resource representation.
 | items | [ClusterPromotionTask](#github-com-akuity-kargo-api-v1alpha1-ClusterPromotionTask) |   |
 
 
+### CognitePromotionWindow {#github-com-akuity-kargo-api-v1alpha1-CognitePromotionWindow}
+ PromotionWindows defines time windows during which automatic promotions are allowed to occur. If not specified, automatic promotions can occur at any time.
+| Field | Type | Description |
+| ----- | ---- | ----------- |
+| metadata | k8s.io.apimachinery.pkg.apis.meta.v1.ObjectMeta |   |
+| spec | [PromotionWindowSpec](#github-com-akuity-kargo-api-v1alpha1-PromotionWindowSpec) |  Spec describes the composition of an AutoPromotionWindow, including the recurring time window and time zone.   |
+
+
+### CognitePromotionWindowList {#github-com-akuity-kargo-api-v1alpha1-CognitePromotionWindowList}
+ CognitePromotionWindowList contains a list of PromotionWindows.
+| Field | Type | Description |
+| ----- | ---- | ----------- |
+| metadata | k8s.io.apimachinery.pkg.apis.meta.v1.ListMeta |   |
+| items | [CognitePromotionWindow](#github-com-akuity-kargo-api-v1alpha1-CognitePromotionWindow) |   |
+
+
 ### CurrentStage {#github-com-akuity-kargo-api-v1alpha1-CurrentStage}
  CurrentStage reflects a Stage's current use of Freight.
 | Field | Type | Description |
@@ -2328,6 +2344,17 @@ RawFormat specifies the format for raw resource representation.
 | ----- | ---- | ----------- |
 | vars | [ExpressionVariable](#github-com-akuity-kargo-api-v1alpha1-ExpressionVariable) |  Vars is a list of variables that can be referenced by expressions in promotion steps. |
 | steps | [PromotionStep](#github-com-akuity-kargo-api-v1alpha1-PromotionStep) |  Steps specifies the directives to be executed as part of a Promotion. The order in which the directives are executed is the order in which they are listed in this field.      |
+
+
+### PromotionWindowSpec {#github-com-akuity-kargo-api-v1alpha1-PromotionWindowSpec}
+ 
+| Field | Type | Description |
+| ----- | ---- | ----------- |
+| kind | string |  Kind is either "deny" or "allow", indicating whether the time window represents a period during which promotions are denied or allowed.   |
+| schedule | string |  Schedule describes a recurring time window. Example: "0 0 * * 1-5" means every weekday at midnight.   |
+| duration | k8s.io.apimachinery.pkg.apis.meta.v1.Duration |  Duration is the length of time that the window lasts after the start time defined by the Schedule.    |
+| timeZone | string |  TimeZone is the IANA time zone name that applies to the time window. If not specified, UTC is assumed. |
+| labelSelector | k8s.io.apimachinery.pkg.apis.meta.v1.LabelSelector |  LabelSelector to target either Projects or Stages. I am using a LabelSelector instead of a typed field to isolate all the changes to limit the conflict with upstream. Beware: empty labelSelector means it matches all in the namespace +optional |
 
 
 ### QuayWebhookReceiverConfig {#github-com-akuity-kargo-api-v1alpha1-QuayWebhookReceiverConfig}

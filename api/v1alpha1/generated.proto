@@ -395,6 +395,26 @@ message ClusterPromotionTaskList {
   repeated ClusterPromotionTask items = 2;
 }
 
+// PromotionWindows defines time windows during which automatic promotions
+// are allowed to occur. If not specified, automatic promotions can occur at
+// any time.
+message CognitePromotionWindow {
+  optional .k8s.io.apimachinery.pkg.apis.meta.v1.ObjectMeta metadata = 1;
+
+  // Spec describes the composition of an AutoPromotionWindow, including the
+  // recurring time window and time zone.
+  //
+  // +kubebuilder:validation:Required
+  optional PromotionWindowSpec spec = 2;
+}
+
+// CognitePromotionWindowList contains a list of PromotionWindows.
+message CognitePromotionWindowList {
+  optional .k8s.io.apimachinery.pkg.apis.meta.v1.ListMeta metadata = 1;
+
+  repeated CognitePromotionWindow items = 2;
+}
+
 // CurrentStage reflects a Stage's current use of Freight.
 message CurrentStage {
   // Since is the time at which the Stage most recently started using the
@@ -1668,6 +1688,37 @@ message PromotionTemplateSpec {
   // +kubebuilder:validation:items:XValidation:message="PromotionTemplate step referencing a task cannot set continueOnError",rule="!has(self.task) || !has(self.continueOnError)"
   // +kubebuilder:validation:items:XValidation:message="PromotionTemplate step referencing a task cannot set retry",rule="!has(self.task) || !has(self.retry)"
   repeated PromotionStep steps = 1;
+}
+
+message PromotionWindowSpec {
+  // Kind is either "deny" or "allow", indicating whether the time window
+  // represents a period during which promotions are denied or allowed.
+  //
+  // +kubebuilder:validation:Enum=deny;allow;
+  optional string kind = 1;
+
+  // Schedule describes a recurring time window.
+  // Example: "0 0 * * 1-5" means every weekday at midnight.
+  //
+  // +kubebuilder:validation:Required
+  optional string schedule = 2;
+
+  // Duration is the length of time that the window lasts after the start
+  // time defined by the Schedule.
+  //
+  // +kubebuilder:validation:Required
+  // +kubebuilder:validation:XValidation:rule="duration(self) > duration('0s')", message="Duration must follow duration format (e.g: 30s) and be positive"
+  optional .k8s.io.apimachinery.pkg.apis.meta.v1.Duration duration = 3;
+
+  // TimeZone is the IANA time zone name that applies to the time window.
+  // If not specified, UTC is assumed.
+  optional string timeZone = 4;
+
+  // LabelSelector to target either Projects or Stages.
+  // I am using a LabelSelector instead of a typed field to isolate all the changes to limit the conflict with upstream.
+  // Beware: empty labelSelector means it matches all in the namespace
+  // +optional
+  optional .k8s.io.apimachinery.pkg.apis.meta.v1.LabelSelector labelSelector = 5;
 }
 
 // QuayWebhookReceiverConfig describes a webhook receiver that is compatible
