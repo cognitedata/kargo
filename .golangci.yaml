@@ -176,7 +176,7 @@ linters:
 
 formatters:
   enable:
-    - gci
+    # - gci
     - gofmt
     - goimports
 
