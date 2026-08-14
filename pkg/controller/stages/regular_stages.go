@@ -1887,6 +1887,7 @@ func (r *RegularStageReconciler) autoPromoteFreight(
 	autoPromotionEnabled bool,
 ) (kargoapi.StageStatus, error) {
 	logger := logging.LoggerFromContext(ctx)
+	now := time.Now()
 	newStatus := *stage.Status.DeepCopy()
 	newStatus.AutoPromotionEnabled = autoPromotionEnabled
 
@@ -1902,6 +1903,17 @@ func (r *RegularStageReconciler) autoPromoteFreight(
 		// Nothing to promote. The durable and effective hold maps are cleared by
 		// syncPromotions and computeEffectiveAutoPromotionHolds respectively when
 		// auto-promotion is disabled, not here.
+		return newStatus, nil
+	}
+
+	allowed, err := api.CheckPromotionWindows(ctx, now, r.client, stage.ObjectMeta)
+	if err != nil {
+		return newStatus, fmt.Errorf(
+			"error checking PromotionWindows for PromotionPolicy in Project %q: %w", stage.Namespace, err,
+		)
+	}
+	if !allowed {
+		logger.Debug("auto promotion denied by promotion window")
 		return newStatus, nil
 	}
 
