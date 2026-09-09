@@ -11,6 +11,7 @@ import (
 	kargoapi "github.com/akuity/kargo/api/v1alpha1"
 	"github.com/akuity/kargo/pkg/controller/git"
 	"github.com/akuity/kargo/pkg/credentials"
+	"github.com/akuity/kargo/pkg/logging"
 	"github.com/akuity/kargo/pkg/promotion"
 	"github.com/akuity/kargo/pkg/x/promotion/runner/builtin"
 )
@@ -76,7 +77,11 @@ func (g *gitCloner) Run(
 			Status: kargoapi.PromotionStepStatusFailed,
 		}, &promotion.TerminalError{Err: err}
 	}
-	return g.run(ctx, stepCtx, cfg)
+	logger := logging.LoggerFromContext(ctx)
+	logger.Debug("Before git-clone run")
+	result, err := g.run(ctx, stepCtx, cfg)
+	logger.WithValues("err", err, "result", result).Debug("After git-clone run")
+	return result, err
 }
 
 func (g *gitCloner) convert(cfg promotion.Config) (builtin.GitCloneConfig, error) {
@@ -105,6 +110,8 @@ func (g *gitCloner) run(
 	stepCtx *promotion.StepContext,
 	cfg builtin.GitCloneConfig,
 ) (promotion.StepResult, error) {
+	logger := logging.LoggerFromContext(ctx)
+
 	var repoCreds *git.RepoCredentials
 	creds, err := g.credsDB.Get(
 		ctx,
@@ -139,6 +146,7 @@ func (g *gitCloner) run(
 		}
 	}
 
+	logger.Debug("Before CloneBare")
 	repo, err := git.CloneBare(
 		ctx,
 		cfg.RepoURL,
@@ -152,6 +160,7 @@ func (g *gitCloner) run(
 			Blobless: cfg.Blobless,
 		},
 	)
+	logger.Debug("After CloneBare")
 	if err != nil {
 		return promotion.StepResult{Status: kargoapi.PromotionStepStatusErrored},
 			fmt.Errorf("error cloning %s: %w", cfg.RepoURL, err)
@@ -178,6 +187,7 @@ func (g *gitCloner) run(
 				checkout.Path, stepCtx.WorkDir, err,
 			)
 		}
+		logger.Debug("Before AddWorkTree")
 		worktree, err := repo.AddWorkTree(
 			ctx,
 			path,
@@ -186,6 +196,7 @@ func (g *gitCloner) run(
 				Sparse: checkout.Sparse,
 			},
 		)
+		logger.Debug("After AddWorkTree")
 		if err != nil {
 			return promotion.StepResult{Status: kargoapi.PromotionStepStatusErrored},
 				fmt.Errorf(
