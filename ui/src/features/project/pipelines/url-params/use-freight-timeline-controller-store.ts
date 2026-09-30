@@ -25,10 +25,14 @@ export const useFreightTimelineControllerStore = (project: string) => {
       stepEdges: false
     };
 
+    const defaultOverrides = {
+      stackedNodesParents: ['cleanup']
+    };
+
     const hasFilterParams = Object.keys(filters).some((name) => searchParams.has(name));
 
     if (!hasFilterParams) {
-      return { ...filters, ...getFreightTimelineFiltersLocalStorage(project) };
+      return { ...filters, ...getFreightTimelineFiltersLocalStorage(project), ...defaultOverrides };
     }
 
     const viewParam = searchParams.get('view');

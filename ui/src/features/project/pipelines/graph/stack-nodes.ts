@@ -29,7 +29,10 @@ export const stackNodes = (
       visited.add(currentNode);
 
       for (const successor of (graph.successors(currentNode) || []) as string[]) {
-        if (afterNodes.includes(successor)) {
+        if (
+          afterNodes.includes(successor) ||
+          afterNodes.includes(stageIndexer.getStageName(successor))
+        ) {
           if (processedParents.has(successor)) {
             continue;
           }

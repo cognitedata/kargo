@@ -270,6 +270,7 @@ export const StageNode = (props: { stage: Stage }) => {
       {resumeAutoPromotionDrawer}
 
       {!graphContext?.stackedNodesParents?.includes(stageNodeIndex) &&
+        !graphContext?.stackedNodesParents?.includes(stageName) &&
         totalSubscribersToThisStage > 0 && (
           <Button
             style={{ width: 16, height: 16 }}
