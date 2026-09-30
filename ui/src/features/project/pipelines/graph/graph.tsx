@@ -55,7 +55,10 @@ export const Graph = (props: GraphProps) => {
   };
 
   const onUnstack = (parentNode: string) => {
-    setStackedNodesParents(stackedNodesParents.filter((node) => node !== parentNode));
+    const parentNodeName = stageIndexer.getStageName(parentNode);
+    setStackedNodesParents(
+      stackedNodesParents.filter((node) => node !== parentNode && node !== parentNodeName)
+    );
   };
 
   const [redraw, setRedraw] = useState(false);
